@@ -1,7 +1,7 @@
-ARG APP_VERSION=0.0.1-SNAPSHOT
-
 FROM eclipse-temurin:25-alpine
 LABEL authors="celestrong" maintainer="celestrong"
+
+ARG APP_VERSION=0.0.1-SNAPSHOT
 
 ENV TZ=Asia/Shanghai
 ENV LANG=C.UTF-8
