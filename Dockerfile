@@ -1,19 +1,28 @@
 FROM eclipse-temurin:25-alpine
-LABEL authors="celestrong"
+LABEL authors="celestrong" maintainer="celestrong"
 
-ARG JAVA_VERSION
+ARG APP_VERSION=0.0.1-SNAPSHOT
 ENV TZ=Asia/Shanghai
+ENV LANG=C.UTF-8
+# JVM核心参数（可根据你的服务器配置调整内存大小）
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxMetaspaceSize=256m \
+               -Duser.timezone=${TZ} -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom \
+               --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED \
+               -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/app/log/oom.hprof"
 
-# 文件目录预创建
-# RUN mkdir /opt/app && mkdir /opt/app/cert && mkdir /opt/app/log
+USER nobody:nobody
 
 WORKDIR /opt/app
+# Alpine镜像安装时区包，解决时区失效+精简安装无缓存
+RUN apk add --no-cache tzdata && \
+    mkdir -p /opt/app/log && \
+    chmod -R 755 /opt/app && \
+    chown -R nobody:nobody /opt/app
+
 
 # 核心可执行文件
-COPY ./service/target/service-${JAVA_VERSION}.jar ./service.jar
-# copy 项目证书，配置文件等
-# COPY file.cert  ./cert/
+COPY ./service/target/service-${APP_VERSION}.jar ./service.jar
 
-ENTRYPOINT ["java","-jar","./service.jar"]
+ENTRYPOINT ["sh","-c","java ${JAVA_OPTS} -jar ./service.jar $0 $@"]
 # 环境配置可被替换
 CMD ["--spring.profiles.active=test"]

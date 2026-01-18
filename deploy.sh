@@ -15,10 +15,12 @@ main(){
   # 获取项目版本号
   version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
-  info "开始构建项目im-system-${version}"
+  info "开始构建项目,当前版本：${version}"
   mvn clean package -DskipTests
 
-  info "开始构建docker镜像"
+  info "开始构建项目docker镜像！"
+
+  docker build -t "${APP_NAME}:${version}" .
 
 }
 
