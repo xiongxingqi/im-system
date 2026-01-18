@@ -11,8 +11,9 @@ ENV TZ=Asia/Shanghai \
 
 # JVM 核心参数优化
 # 1. 使用 MaxRAMPercentage 代替固定的 -Xmx
+# -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0
 # 2. 增加 PreferContainerQuotaForCPUCount 优化容器内 CPU 感知
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 \
+ENV JAVA_OPTS="-Xms1g -Xmx1g \
                -XX:+UseG1GC -XX:MaxMetaspaceSize=256m \
                -Duser.timezone=${TZ} -Dfile.encoding=UTF-8 \
                -Djava.security.egd=file:/dev/./urandom \
