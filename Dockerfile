@@ -26,10 +26,11 @@ ENV JAVA_OPTS="-Xms1g -Xmx1g \
 RUN groupadd -r erii && useradd -r -g erii erii
 # 1. 安装时区包 (保持 root 权限执行)
 # 2. 提前创建工作目录和日志目录
-RUN apk add --no-cache tzdata && \
-    ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
-    echo ${TZ} > /etc/timezone && \
-    mkdir -p ${APP_HOME}/log && \
+RUN set -eux; \
+    apk add --no-cache tzdata; \
+    ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime; \
+    echo ${TZ} > /etc/timezone; \
+    mkdir -p ${APP_HOME}/log; \
     chown -R erii:erii ${APP_HOME}
 
 
