@@ -25,21 +25,22 @@ ENV JAVA_OPTS="-Xms1g -Xmx1g \
 # 1. 安装时区包 (保持 root 权限执行)
 # 2. 提前创建工作目录和日志目录
 RUN apk add --no-cache tzdata && \
+    useradd -r -U celestrong && \
     ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone && \
     mkdir -p ${APP_HOME}/log && \
-    chown -R nobody:nobody ${APP_HOME}
+    chown -R celestrong:celestrong ${APP_HOME}
 
 
 WORKDIR ${APP_HOME}
 
 # 拷贝 jar 包，并直接修改所有者为 nobody
 # 此时仍为 root 权限，可以执行 chown
-COPY --chown=nobody:nobody ./service/target/service-${APP_VERSION}.jar ./service.jar
+COPY --chown=celestrong:celestrong ./service/target/service-${APP_VERSION}.jar ./service.jar
 
 
 # 切换到非 root 用户执行程序
-USER nobody
+USER celestrong
 
 # 使用 exec 确保信号传递，让 Java 能够优雅停机
 ENTRYPOINT ["sh", "-c", "exec java ${JAVA_OPTS} -jar ./service.jar $0 $@"]
