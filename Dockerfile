@@ -22,25 +22,26 @@ ENV JAVA_OPTS="-Xms1g -Xmx1g \
                -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError \
                -XX:HeapDumpPath=${APP_HOME}/log/oom.hprof"
 
+
+RUN groupadd -r erii && useradd -r -g erii erii
 # 1. 安装时区包 (保持 root 权限执行)
 # 2. 提前创建工作目录和日志目录
 RUN apk add --no-cache tzdata && \
-    useradd -r -U celestrong && \
     ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone && \
     mkdir -p ${APP_HOME}/log && \
-    chown -R celestrong:celestrong ${APP_HOME}
+    chown -R erii:erii ${APP_HOME}
 
 
 WORKDIR ${APP_HOME}
 
 # 拷贝 jar 包，并直接修改所有者为 nobody
 # 此时仍为 root 权限，可以执行 chown
-COPY --chown=celestrong:celestrong ./service/target/service-${APP_VERSION}.jar ./service.jar
+COPY --chown=erii:erii ./service/target/service-${APP_VERSION}.jar ./service.jar
 
 
 # 切换到非 root 用户执行程序
-USER celestrong
+USER erii
 
 # 使用 exec 确保信号传递，让 Java 能够优雅停机
 ENTRYPOINT ["sh", "-c", "exec java ${JAVA_OPTS} -jar ./service.jar $0 $@"]
